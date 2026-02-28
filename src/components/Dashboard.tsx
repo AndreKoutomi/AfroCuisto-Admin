@@ -34,7 +34,7 @@ export default function Dashboard({ recipes }: { recipes: Recipe[] }) {
                         </div>
                         <div>
                             <p className="text-text-muted text-xs font-bold uppercase tracking-widest mb-1">{stat.label}</p>
-                            <h3 className="text-2xl font-black">{stat.value}</h3>
+                            <h3 className="text-2xl font-black text-white">{stat.value}</h3>
                         </div>
                     </motion.div>
                 ))}
@@ -44,7 +44,7 @@ export default function Dashboard({ recipes }: { recipes: Recipe[] }) {
                 {/* Activity Feed Placeholder */}
                 <div className="lg:col-span-2 premium-card">
                     <div className="flex justify-between items-center mb-8">
-                        <h2 className="text-xl font-black tracking-tight flex items-center gap-3">
+                        <h2 className="text-xl font-black tracking-tight flex items-center gap-3 text-white">
                             <TrendingUp className="text-primary" size={24} /> RÉCENTES MODIFICATIONS
                         </h2>
                         <button className="text-primary text-xs font-bold uppercase tracking-widest hover:underline">Voir l'historique</button>
@@ -58,7 +58,7 @@ export default function Dashboard({ recipes }: { recipes: Recipe[] }) {
                                         <img src={recipe.image} className="w-full h-full object-cover" alt="" />
                                     </div>
                                     <div>
-                                        <h4 className="font-bold text-sm tracking-tight">{recipe.name}</h4>
+                                        <h4 className="font-bold text-sm tracking-tight text-white">{recipe.name}</h4>
                                         <p className="text-[10px] text-text-muted font-bold uppercase tracking-widest">Mise à jour par Admin • Il y a {idx + 1}h</p>
                                     </div>
                                 </div>
@@ -76,11 +76,11 @@ export default function Dashboard({ recipes }: { recipes: Recipe[] }) {
                     <div className="absolute top-0 right-0 p-8 opacity-5">
                         <Activity size={120} className="text-primary" />
                     </div>
-                    <h2 className="text-xl font-black tracking-tight mb-8 relative z-10">DASHBOARD HEALTH</h2>
+                    <h2 className="text-xl font-black tracking-tight mb-8 relative z-10 text-white">DASHBOARD HEALTH</h2>
 
                     <div className="space-y-6 relative z-10">
                         <div className="space-y-2">
-                            <div className="flex justify-between text-xs font-bold uppercase">
+                            <div className="flex justify-between text-xs font-bold uppercase text-white/80">
                                 <span>Supabase Response</span>
                                 <span className="text-success">24ms</span>
                             </div>
@@ -94,7 +94,7 @@ export default function Dashboard({ recipes }: { recipes: Recipe[] }) {
                         </div>
 
                         <div className="space-y-2">
-                            <div className="flex justify-between text-xs font-bold uppercase">
+                            <div className="flex justify-between text-xs font-bold uppercase text-white/80">
                                 <span>Storage Availability</span>
                                 <span className="text-primary">98%</span>
                             </div>

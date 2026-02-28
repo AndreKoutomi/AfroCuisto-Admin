@@ -8,23 +8,14 @@ import {
   LogOut,
   ChevronRight,
   ChefHat,
-  Database,
-  CloudUpload,
-  BarChart3,
-  SearchIcon,
   Filter,
   Trash2,
-  Edit3,
-  X,
-  CheckCircle2,
-  AlertCircle,
-  Menu
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { supabase } from './supabase';
-import { Recipe } from './types';
-import DishEditor from './components/DishEditor';
-import Dashboard from './components/Dashboard';
+import type { Recipe } from './types';
+import DishEditor from './components/DishEditor.tsx';
+import Dashboard from './components/Dashboard.tsx';
 
 export default function App() {
   const [activeTab, setActiveTab] = useState<'dashboard' | 'recipes' | 'settings'>('dashboard');
@@ -87,7 +78,7 @@ export default function App() {
             <ChefHat className="text-white" size={24} />
           </div>
           {isSidebarOpen && (
-            <span className="font-extrabold text-xl tracking-tight">AfroCuisto <span className="text-primary">CMS</span></span>
+            <span className="font-extrabold text-xl tracking-tight text-white">AfroCuisto <span className="text-primary">CMS</span></span>
           )}
         </div>
 
@@ -120,7 +111,7 @@ export default function App() {
       <main className="flex-1 overflow-y-auto no-scrollbar bg-bg p-8">
         <header className="flex justify-between items-center mb-10">
           <div>
-            <h1 className="text-3xl font-black tracking-tight mb-2 uppercase">
+            <h1 className="text-3xl font-black tracking-tight mb-2 uppercase text-white">
               {activeTab === 'dashboard' ? 'Overview' : activeTab === 'recipes' ? 'Catalogue' : 'Settings'}
             </h1>
             <p className="text-text-muted text-sm font-medium">Gestion temps-réel du contenu Cloud Supabase</p>
@@ -165,7 +156,7 @@ export default function App() {
                     placeholder="Chercher par nom ou région..."
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    className="w-full pl-12 bg-[#18181b] border-white/5 focus:border-primary/30"
+                    className="w-full pl-12 bg-[#18181b] border-white/5 focus:border-primary/30 text-white"
                   />
                 </div>
                 <button className="bg-[#18181b] p-3 rounded-xl border border-white/5 text-text-muted hover:text-white">
@@ -195,8 +186,11 @@ export default function App() {
                       </div>
                     </div>
                     <div className="flex justify-between items-start mb-2">
-                      <h3 className="font-extrabold text-lg group-hover:text-primary transition-colors leading-tight">{recipe.name}</h3>
-                      <button className="text-text-muted hover:text-danger opacity-0 group-hover:opacity-100 transition-all p-1">
+                      <h3 className="font-extrabold text-lg group-hover:text-primary transition-colors leading-tight text-white">{recipe.name}</h3>
+                      <button className="text-text-muted hover:text-danger opacity-0 group-hover:opacity-100 transition-all p-1" onClick={(e) => {
+                        e.stopPropagation();
+                        // handleDelete(recipe.id);
+                      }}>
                         <Trash2 size={18} />
                       </button>
                     </div>
