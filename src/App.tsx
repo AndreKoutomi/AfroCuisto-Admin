@@ -123,7 +123,7 @@ export default function App() {
               Pages / {activeTab === 'dashboard' ? 'Overview' : activeTab === 'recipes' ? 'Master Catalogue' : 'Settings'}
             </span>
             <h2 className="text-[34px] font-bold text-[#2B3674] leading-none capitalize tracking-tight">
-              {activeTab === 'dashboard' ? 'Main Dashboard' : activeTab === 'recipes' ? 'Data Tables' : 'Settings'}
+              {activeTab === 'dashboard' ? 'Luxe Matrix Dashboard' : activeTab === 'recipes' ? 'Data Tables' : 'Settings'}
             </h2>
           </div>
 
