@@ -13,7 +13,8 @@ import {
   Bell,
   Command,
   User,
-  ArrowRight
+  ArrowRight,
+  Database
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { supabase } from './supabase';
@@ -94,8 +95,8 @@ export default function App() {
                 key={item.id}
                 onClick={() => setActiveTab(item.id as any)}
                 className={`sidebar-item w-full flex items-center gap-4 px-5 py-4 rounded-2xl transition-all group ${activeTab === item.id
-                    ? 'bg-white/5 text-white active'
-                    : 'text-white/40 hover:text-white hover:bg-white/2'
+                  ? 'bg-white/5 text-white active'
+                  : 'text-white/40 hover:text-white hover:bg-white/2'
                   }`}
               >
                 <item.icon size={20} className={activeTab === item.id ? 'text-primary' : ''} />
