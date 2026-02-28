@@ -1,12 +1,8 @@
-import React from 'react';
 import {
     BarChart3,
     UtensilsCrossed,
     Globe2,
     Sparkles,
-    TrendingUp,
-    Activity,
-    ArrowUpRight,
     Clock,
     Zap,
     CheckCircle2

@@ -3,20 +3,11 @@ import {
     Save,
     Trash2,
     Plus,
-    Image as ImageIcon,
-    Clock,
-    MapPin,
-    Tag,
-    BarChart,
-    Type,
-    ListOrdered,
-    Sparkles,
-    Youtube,
     CheckCircle2,
     ArrowLeft,
-    CloudUpload,
-    ChefHat
+    CloudUpload
 } from 'lucide-react';
+
 import { motion, AnimatePresence } from 'framer-motion';
 import { supabase } from '../supabase';
 import type { Recipe, Ingredient } from '../types';
@@ -169,8 +160,8 @@ export default function DishEditor({ isOpen, recipe, onClose, onSave }: Props) {
                             onClick={handleSave}
                             disabled={isSaving}
                             className={`flex shrink-0 items-center gap-2 px-6 py-3 rounded-[16px] font-bold text-[14px] transition-all shadow-md ${saveStatus === 'success' ? 'bg-[#05CD99] text-white' :
-                                    saveStatus === 'error' ? 'bg-[#EE5D50] text-white' :
-                                        'bg-[#4318FF] text-white hover:bg-[#4318FF]/90 hover:-translate-y-0.5 shadow-[14px_17px_40px_4px_rgba(67,24,255,0.18)]'
+                                saveStatus === 'error' ? 'bg-[#EE5D50] text-white' :
+                                    'bg-[#4318FF] text-white hover:bg-[#4318FF]/90 hover:-translate-y-0.5 shadow-[14px_17px_40px_4px_rgba(67,24,255,0.18)]'
                                 }`}
                         >
                             {isSaving ? (

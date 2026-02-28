@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import {
   LayoutDashboard,
   UtensilsCrossed,
@@ -6,14 +6,9 @@ import {
   Search,
   Settings,
   LogOut,
-  ChevronRight,
   ChefHat,
-  Filter,
   Trash2,
   Bell,
-  Command,
-  User,
-  ArrowRight,
   Database
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -25,7 +20,6 @@ import Dashboard from './components/Dashboard.tsx';
 export default function App() {
   const [activeTab, setActiveTab] = useState<'dashboard' | 'recipes' | 'settings'>('dashboard');
   const [recipes, setRecipes] = useState<Recipe[]>([]);
-  const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const [editingRecipe, setEditingRecipe] = useState<Recipe | null>(null);
   const [isEditorOpen, setIsEditorOpen] = useState(false);
@@ -35,7 +29,6 @@ export default function App() {
   }, []);
 
   async function fetchRecipes() {
-    setLoading(true);
     const { data, error } = await supabase
       .from('recipes')
       .select('*')
@@ -44,7 +37,6 @@ export default function App() {
     if (!error && data) {
       setRecipes(data);
     }
-    setLoading(false);
   }
 
   const filteredRecipes = recipes.filter(r =>
