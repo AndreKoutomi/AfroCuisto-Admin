@@ -91,7 +91,7 @@ export default function App() {
           </div>
         </div>
 
-        <nav className="space-y-3">
+        <nav className="space-y-2">
           {[
             { id: 'dashboard', icon: LayoutDashboard, label: 'Dashboard' },
             { id: 'recipes', icon: UtensilsCrossed, label: 'Asset Management' },
@@ -100,33 +100,36 @@ export default function App() {
             <button
               key={item.id}
               onClick={() => setActiveTab(item.id as any)}
-              className={`w-full flex items-center gap-4 px-6 py-3 relative group transition-colors`}
+              className={`w-full flex items-center gap-3 px-4 py-3.5 rounded-[16px] transition-all duration-200 group ${activeTab === item.id ? 'bg-[#F4F7FE] shadow-sm' : 'hover:bg-[#F4F7FE]/60'
+                }`}
             >
-              <item.icon size={22} className={activeTab === item.id ? 'text-[#4318FF]' : 'text-[#A3AED0] group-hover:text-[#2B3674]'} />
-              <span className={`text-[16px] pr-2 tracking-wide text-left flex-1 ${activeTab === item.id ? 'text-[#4318FF] font-bold' : 'text-[#A3AED0] font-medium group-hover:text-[#2B3674]'}`}>{item.label}</span>
-              {activeTab === item.id && (
-                <div className="absolute right-0 top-1/2 -translate-y-1/2 w-1 h-9 bg-[#4318FF] rounded-lg" />
-              )}
+              <item.icon
+                size={20}
+                strokeWidth={activeTab === item.id ? 2.5 : 2}
+                className={activeTab === item.id ? 'text-[#4318FF]' : 'text-[#A3AED0] group-hover:text-[#4318FF]'}
+              />
+              <span className={`text-[15px] tracking-wide text-left flex-1 ${activeTab === item.id ? 'text-[#2B3674] font-bold' : 'text-[#A3AED0] font-medium group-hover:text-[#2B3674]'
+                }`}>
+                {item.label}
+              </span>
             </button>
           ))}
         </nav>
 
-        <div className="mt-auto pb-10 space-y-4 pt-10">
-          {/* Free Venus Promotion Banner style */}
-          <div className="p-4 rounded-2xl bg-gradient-to-br from-[#868CFF] to-[#4318FF] text-white relative overflow-hidden shadow-lg">
-            <div className="absolute -top-10 -right-10 w-24 h-24 bg-white/10 rounded-full blur-xl" />
-            <div className="flex items-center gap-3 mb-2 relative z-10">
-              <div className="w-8 h-8 rounded-full bg-white flex shrink-0 items-center justify-center">
-                <Database size={14} className="text-[#4318FF]" />
-              </div>
-              <span className="text-[14px] font-bold">Cloud Synced</span>
+        <div className="mt-auto pb-8 space-y-3 pt-8">
+          <div className="mx-2 p-5 rounded-[20px] bg-[#F4F7FE] border border-[#E0E5F2] flex flex-col items-center text-center">
+            <div className="w-10 h-10 rounded-full bg-white shadow-sm flex shrink-0 items-center justify-center mb-3 text-[#4318FF]">
+              <Database size={18} />
             </div>
-            <p className="text-[12px] opacity-80 relative z-10 font-medium leading-tight">Database fully active & synchronized with edge nodes.</p>
+            <span className="text-[14px] font-bold text-[#2B3674] mb-1">Cloud Synced</span>
+            <p className="text-[12px] text-[#A3AED0] font-medium leading-relaxed">
+              Database active & synced with edge nodes.
+            </p>
           </div>
 
-          <button className="flex items-center gap-4 px-6 py-3 w-full transition-all group">
-            <LogOut size={22} className="text-[#A3AED0] group-hover:text-[#2B3674]" />
-            <span className="text-[16px] tracking-wide font-medium text-[#A3AED0] group-hover:text-[#2B3674]">Log out</span>
+          <button className="flex items-center justify-center gap-3 px-4 py-3.5 mx-2 w-[calc(100%-16px)] rounded-[16px] transition-all hover:bg-[#FFF5F5] group">
+            <LogOut size={18} className="text-[#A3AED0] group-hover:text-[#EE5D50]" />
+            <span className="text-[14px] font-bold text-[#A3AED0] group-hover:text-[#EE5D50]">Log out</span>
           </button>
         </div>
       </aside>
