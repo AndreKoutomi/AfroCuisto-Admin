@@ -10,7 +10,7 @@ import {
 import { motion } from 'framer-motion';
 import type { Recipe } from '../types';
 
-export default function Dashboard({ recipes }: { recipes: Recipe[] }) {
+export default function Dashboard({ recipes, onEditRecipe }: { recipes: Recipe[], onEditRecipe: (recipe: Recipe) => void }) {
     const stats = [
         { label: 'Cuisine Catalog', value: recipes.length, icon: UtensilsCrossed, trend: '+4%', color: 'text-[#4318FF]' },
         { label: 'Map Coverage', value: new Set(recipes.map(r => r.region)).size, icon: Globe2, trend: 'Stable', color: 'text-[#4318FF]' },
@@ -57,10 +57,26 @@ export default function Dashboard({ recipes }: { recipes: Recipe[] }) {
 
                     <div className="space-y-4">
                         {recipes.slice(0, 5).map((recipe, idx) => (
-                            <div key={recipe.id} className="group flex flex-col md:flex-row md:items-center justify-between p-4 rounded-[16px] bg-white border border-[#E0E5F2] hover:shadow-[0_4px_12px_rgba(112,144,176,0.08)] transition-all gap-4">
+                            <div
+                                key={recipe.id}
+                                onClick={() => onEditRecipe(recipe)}
+                                className="group flex flex-col md:flex-row md:items-center justify-between p-4 rounded-[16px] bg-white border border-[#E0E5F2] hover:shadow-[0_4px_12px_rgba(112,144,176,0.08)] transition-all gap-4 cursor-pointer"
+                            >
                                 <div className="flex items-center gap-4 min-w-0">
-                                    <div className="w-14 h-14 rounded-xl overflow-hidden shadow-sm shrink-0">
-                                        <img src={recipe.image} className="w-full h-full object-cover" alt="" />
+                                    <div className="w-14 h-14 rounded-xl overflow-hidden shadow-sm shrink-0 bg-[#F4F7FE] flex items-center justify-center border border-[#E0E5F2]">
+                                        {recipe.image ? (
+                                            <img
+                                                src={recipe.image}
+                                                className="w-full h-full object-cover"
+                                                alt=""
+                                                onError={(e) => {
+                                                    (e.target as HTMLImageElement).onerror = null;
+                                                    (e.target as HTMLImageElement).src = 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?q=80&w=300&auto=format&fit=crop';
+                                                }}
+                                            />
+                                        ) : (
+                                            <UtensilsCrossed size={20} className="text-[#A3AED0]" />
+                                        )}
                                     </div>
                                     <div className="min-w-0 flex-1">
                                         <h4 className="font-bold text-[16px] tracking-tight text-[#2B3674] mb-1 truncate">{recipe.name}</h4>

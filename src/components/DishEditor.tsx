@@ -5,7 +5,12 @@ import {
     Plus,
     CheckCircle2,
     ArrowLeft,
-    CloudUpload
+    CloudUpload,
+    Sparkles,
+    Wand2,
+    History,
+    Languages,
+    ChefHat
 } from 'lucide-react';
 
 import { motion, AnimatePresence } from 'framer-motion';
@@ -24,6 +29,38 @@ export default function DishEditor({ isOpen, recipe, onClose, onSave }: Props) {
     const [isSaving, setIsSaving] = useState(false);
     const [saveStatus, setSaveStatus] = useState<'idle' | 'success' | 'error'>('idle');
     const [uploadProgress, setUploadProgress] = useState(0);
+    const [isAILoading, setIsAILoading] = useState(false);
+
+    const aiGenerateDescription = async () => {
+        if (!formData || !formData.name) return;
+        setIsAILoading(true);
+        // Mocking AI response for speed
+        setTimeout(() => {
+            if (formData) {
+                const mockDesc = `Un plat emblématique du ${formData.region}, le ${formData.name} est une symphonie de saveurs authentiques. Préparé avec soin, il incarne l'excellence culinaire et le patrimoine culturel de la région. Parfait pour les occasions spéciales ou un repas quotidien nutritif.`;
+                setFormData({ ...formData, description: mockDesc });
+            }
+            setIsAILoading(false);
+        }, 1200);
+    };
+
+    const aiParseBatch = () => {
+        if (!formData) return;
+        const text = prompt("Passez ici votre texte brut (ingrédients ou étapes)...");
+        if (!text) return;
+
+        // Simple heuristic parser for demo
+        if (text.toLowerCase().includes('ingrédient')) {
+            const matches = text.matchAll(/-\s*(.*?):\s*(.*)/g);
+            const newIngs = Array.from(matches).map(m => ({ item: m[1], amount: m[2] }));
+            if (newIngs.length > 0) {
+                setFormData({ ...formData, ingredients: [...(formData.ingredients || []), ...newIngs] });
+            }
+        } else {
+            const lines = text.split('\n').filter(l => l.trim().length > 5);
+            setFormData({ ...formData, steps: [...(formData.steps || []), ...lines] });
+        }
+    };
 
     useEffect(() => {
         if (recipe) {
@@ -33,6 +70,11 @@ export default function DishEditor({ isOpen, recipe, onClose, onSave }: Props) {
     }, [recipe]);
 
     if (!isOpen || !formData) return null;
+
+    const updateField = (field: keyof Recipe, value: any) => {
+        if (!formData) return;
+        setFormData({ ...formData, [field]: value });
+    };
 
     const handleSave = async () => {
         setIsSaving(true);
@@ -81,7 +123,9 @@ export default function DishEditor({ isOpen, recipe, onClose, onSave }: Props) {
                 .from('recipe-images')
                 .getPublicUrl(filePath);
 
-            setFormData({ ...formData, image: publicUrl });
+            if (formData) {
+                setFormData({ ...formData, image: publicUrl });
+            }
             setUploadProgress(100);
             setTimeout(() => setUploadProgress(0), 1000);
         } catch (err) {
@@ -92,33 +136,39 @@ export default function DishEditor({ isOpen, recipe, onClose, onSave }: Props) {
     };
 
     const addIngredient = () => {
+        if (!formData) return;
         const ings = [...(formData.ingredients || []), { item: '', amount: '' }];
         setFormData({ ...formData, ingredients: ings });
     };
 
     const updateIngredient = (index: number, field: keyof Ingredient, value: string) => {
+        if (!formData) return;
         const ings = [...(formData.ingredients || [])];
         ings[index] = { ...ings[index], [field]: value };
         setFormData({ ...formData, ingredients: ings });
     };
 
     const removeIngredient = (index: number) => {
+        if (!formData) return;
         const ings = (formData.ingredients || []).filter((_, i) => i !== index);
         setFormData({ ...formData, ingredients: ings });
     };
 
     const addStep = () => {
+        if (!formData) return;
         const steps = [...(formData.steps || []), ''];
         setFormData({ ...formData, steps: steps });
     };
 
     const updateStep = (index: number, value: string) => {
+        if (!formData) return;
         const steps = [...(formData.steps || [])];
         steps[index] = value;
         setFormData({ ...formData, steps: steps });
     };
 
     const removeStep = (index: number) => {
+        if (!formData) return;
         const steps = (formData.steps || []).filter((_, i) => i !== index);
         setFormData({ ...formData, steps: steps });
     };
@@ -156,23 +206,33 @@ export default function DishEditor({ isOpen, recipe, onClose, onSave }: Props) {
                             </div>
                         </div>
 
-                        <button
-                            onClick={handleSave}
-                            disabled={isSaving}
-                            className={`flex shrink-0 items-center gap-2 px-6 py-3 rounded-[16px] font-bold text-[14px] transition-all shadow-md ${saveStatus === 'success' ? 'bg-[#05CD99] text-white' :
-                                saveStatus === 'error' ? 'bg-[#EE5D50] text-white' :
-                                    'bg-[#4318FF] text-white hover:bg-[#4318FF]/90 hover:-translate-y-0.5 shadow-[14px_17px_40px_4px_rgba(67,24,255,0.18)]'
-                                }`}
-                        >
-                            {isSaving ? (
-                                <div className="w-5 h-5 border-2 border-white/20 border-t-white rounded-full animate-spin" />
-                            ) : saveStatus === 'success' ? (
-                                <CheckCircle2 size={18} />
-                            ) : (
-                                <Save size={18} />
-                            )}
-                            {isSaving ? 'Saving...' : saveStatus === 'success' ? 'Saved' : 'Save Asset'}
-                        </button>
+                        <div className="flex items-center gap-3">
+                            <button
+                                onClick={aiGenerateDescription}
+                                disabled={isAILoading}
+                                className="flex items-center gap-2 px-4 py-3 rounded-[16px] bg-[#F4F7FE] text-[#4318FF] font-bold text-[14px] hover:bg-[#E9E3FF] transition-all disabled:opacity-50"
+                            >
+                                <Sparkles size={18} className={isAILoading ? "animate-pulse" : ""} />
+                                {isAILoading ? 'Thinking...' : 'AI Enhance'}
+                            </button>
+                            <button
+                                onClick={handleSave}
+                                disabled={isSaving}
+                                className={`flex shrink-0 items-center gap-2 px-6 py-3 rounded-[16px] font-bold text-[14px] transition-all shadow-md ${saveStatus === 'success' ? 'bg-[#05CD99] text-white' :
+                                    saveStatus === 'error' ? 'bg-[#EE5D50] text-white' :
+                                        'bg-[#4318FF] text-white hover:bg-[#4318FF]/90 hover:-translate-y-0.5 shadow-[14px_17px_40px_4px_rgba(67,24,255,0.18)]'
+                                    }`}
+                            >
+                                {isSaving ? (
+                                    <div className="w-5 h-5 border-2 border-white/20 border-t-white rounded-full animate-spin" />
+                                ) : saveStatus === 'success' ? (
+                                    <CheckCircle2 size={18} />
+                                ) : (
+                                    <Save size={18} />
+                                )}
+                                {isSaving ? 'Saving...' : saveStatus === 'success' ? 'Saved' : 'Save Asset'}
+                            </button>
+                        </div>
                     </header>
 
                     <div className="flex-1 overflow-y-auto px-8 py-8 no-scrollbar scroll-smooth">
@@ -225,7 +285,7 @@ export default function DishEditor({ isOpen, recipe, onClose, onSave }: Props) {
                                         <input
                                             type="text"
                                             value={formData.name}
-                                            onChange={e => setFormData({ ...formData, name: e.target.value })}
+                                            onChange={e => updateField('name', e.target.value)}
                                             placeholder="Recipe name"
                                             className="w-full bg-[#F4F7FE] text-[#2B3674] rounded-[16px] px-[20px] py-[14px] font-medium border border-transparent focus:border-[#4318FF] focus:bg-white focus:outline-none transition-all placeholder:text-[#A3AED0]"
                                         />
@@ -235,7 +295,7 @@ export default function DishEditor({ isOpen, recipe, onClose, onSave }: Props) {
                                         <div className="relative">
                                             <select
                                                 value={formData.region}
-                                                onChange={e => setFormData({ ...formData, region: e.target.value })}
+                                                onChange={e => updateField('region', e.target.value)}
                                                 className="w-full bg-[#F4F7FE] text-[#2B3674] rounded-[16px] px-[20px] py-[14px] font-medium border border-transparent focus:border-[#4318FF] focus:bg-white focus:outline-none transition-all appearance-none"
                                             >
                                                 <option>Sud</option>
@@ -255,7 +315,7 @@ export default function DishEditor({ isOpen, recipe, onClose, onSave }: Props) {
                                     <div className="relative">
                                         <select
                                             value={formData.category}
-                                            onChange={e => setFormData({ ...formData, category: e.target.value })}
+                                            onChange={e => updateField('category', e.target.value)}
                                             className="w-full bg-[#F4F7FE] text-[#2B3674] rounded-[16px] px-[20px] py-[14px] font-medium border border-transparent focus:border-[#4318FF] focus:bg-white focus:outline-none transition-all appearance-none"
                                         >
                                             <option>Pâtes et Céréales (Wɔ̌)</option>
@@ -278,7 +338,7 @@ export default function DishEditor({ isOpen, recipe, onClose, onSave }: Props) {
                                         <input
                                             type="text"
                                             value={formData.prepTime}
-                                            onChange={e => setFormData({ ...formData, prepTime: e.target.value })}
+                                            onChange={e => updateField('prepTime', e.target.value)}
                                             className="w-full bg-[#F4F7FE] text-[#2B3674] rounded-[16px] px-[20px] py-[14px] font-medium border border-transparent focus:border-[#4318FF] focus:bg-white focus:outline-none transition-all text-center"
                                         />
                                     </div>
@@ -287,7 +347,7 @@ export default function DishEditor({ isOpen, recipe, onClose, onSave }: Props) {
                                         <input
                                             type="text"
                                             value={formData.cookTime}
-                                            onChange={e => setFormData({ ...formData, cookTime: e.target.value })}
+                                            onChange={e => updateField('cookTime', e.target.value)}
                                             className="w-full bg-[#F4F7FE] text-[#2B3674] rounded-[16px] px-[20px] py-[14px] font-medium border border-transparent focus:border-[#4318FF] focus:bg-white focus:outline-none transition-all text-center"
                                         />
                                     </div>
@@ -296,7 +356,7 @@ export default function DishEditor({ isOpen, recipe, onClose, onSave }: Props) {
                                         <div className="relative">
                                             <select
                                                 value={formData.difficulty}
-                                                onChange={e => setFormData({ ...formData, difficulty: e.target.value as any })}
+                                                onChange={e => updateField('difficulty', e.target.value)}
                                                 className="w-full bg-[#F4F7FE] text-[#2B3674] rounded-[16px] px-[12px] py-[14px] font-medium border border-transparent focus:border-[#4318FF] focus:bg-white focus:outline-none transition-all text-center appearance-none"
                                             >
                                                 <option>Très Facile</option>
@@ -318,7 +378,7 @@ export default function DishEditor({ isOpen, recipe, onClose, onSave }: Props) {
                                     <input
                                         type="text"
                                         value={formData.videoUrl || ''}
-                                        onChange={e => setFormData({ ...formData, videoUrl: e.target.value })}
+                                        onChange={e => updateField('videoUrl', e.target.value)}
                                         placeholder="https://youtube.com/watch?v=..."
                                         className="w-full bg-[#F4F7FE] text-[#2B3674] rounded-[16px] px-[20px] py-[14px] font-medium border border-transparent focus:border-[#4318FF] focus:bg-white focus:outline-none transition-all placeholder:text-[#A3AED0]"
                                     />
@@ -329,7 +389,16 @@ export default function DishEditor({ isOpen, recipe, onClose, onSave }: Props) {
                             <div className="space-y-6 flex flex-col min-w-0">
                                 <div className="bg-white rounded-[20px] shadow-[14px_17px_40px_4px_rgba(112,144,176,0.08)] p-[24px]">
                                     <div className="flex justify-between items-center mb-4">
-                                        <h3 className="text-[18px] font-bold text-[#2B3674]">Ingredients</h3>
+                                        <div className="flex items-center gap-3">
+                                            <h3 className="text-[18px] font-bold text-[#2B3674]">Ingredients</h3>
+                                            <button
+                                                onClick={aiParseBatch}
+                                                className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-[#E9E3FF] text-[#4318FF] text-[11px] font-bold hover:bg-[#4318FF] hover:text-white transition-all shadow-sm"
+                                            >
+                                                <Sparkles size={12} />
+                                                AI Smart Paste
+                                            </button>
+                                        </div>
                                         <button onClick={addIngredient} className="w-8 h-8 rounded-full bg-[#F4F7FE] text-[#4318FF] flex items-center justify-center hover:bg-[#E9E3FF] transition-colors shrink-0">
                                             <Plus size={18} />
                                         </button>
@@ -361,7 +430,16 @@ export default function DishEditor({ isOpen, recipe, onClose, onSave }: Props) {
 
                                 <div className="bg-white rounded-[20px] shadow-[14px_17px_40px_4px_rgba(112,144,176,0.08)] p-[24px]">
                                     <div className="flex justify-between items-center mb-4">
-                                        <h3 className="text-[18px] font-bold text-[#2B3674]">Procedures</h3>
+                                        <div className="flex items-center gap-3">
+                                            <h3 className="text-[18px] font-bold text-[#2B3674]">Procedures</h3>
+                                            <button
+                                                onClick={aiParseBatch}
+                                                className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-[#E9E3FF] text-[#4318FF] text-[11px] font-bold hover:bg-[#4318FF] hover:text-white transition-all shadow-sm"
+                                            >
+                                                <Sparkles size={12} />
+                                                AI Smart Paste
+                                            </button>
+                                        </div>
                                         <button onClick={addStep} className="w-8 h-8 rounded-full bg-[#F4F7FE] text-[#4318FF] flex items-center justify-center hover:bg-[#E9E3FF] transition-colors shrink-0">
                                             <Plus size={18} />
                                         </button>
@@ -388,14 +466,70 @@ export default function DishEditor({ isOpen, recipe, onClose, onSave }: Props) {
                                 </div>
 
                                 <div className="bg-white rounded-[20px] shadow-[14px_17px_40px_4px_rgba(112,144,176,0.08)] p-[24px]">
-                                    <h3 className="text-[18px] font-bold text-[#2B3674] mb-4">Description</h3>
+                                    <div className="flex justify-between items-center mb-4">
+                                        <h3 className="text-[18px] font-bold text-[#2B3674] flex items-center gap-2">
+                                            Description
+                                            <Sparkles size={16} className="text-[#4318FF] cursor-pointer hover:scale-110 transition-transform" onClick={aiGenerateDescription} />
+                                        </h3>
+                                    </div>
                                     <textarea
                                         rows={3}
                                         value={formData.description}
-                                        onChange={e => setFormData({ ...formData, description: e.target.value })}
+                                        onChange={e => updateField('description', e.target.value)}
                                         className="w-full bg-[#F4F7FE] text-[#2B3674] rounded-[16px] px-[20px] py-[14px] font-medium border border-transparent focus:border-[#4318FF] focus:bg-white focus:outline-none transition-all leading-relaxed resize-none placeholder:text-[#A3AED0]"
                                         placeholder="Add a rich narrative description for this asset..."
                                     />
+                                </div>
+
+                                {/* Advanced Premium Fields */}
+                                <div className="bg-white rounded-[20px] shadow-[14px_17px_40px_4px_rgba(112,144,176,0.08)] p-[24px] space-y-6 border-t-4 border-[#4318FF]">
+                                    <div className="flex items-center gap-3 mb-2">
+                                        <div className="w-8 h-8 rounded-lg bg-[#E9E3FF] flex shrink-0 items-center justify-center">
+                                            <Wand2 size={16} className="text-[#4318FF]" />
+                                        </div>
+                                        <h3 className="text-[18px] font-bold text-[#2B3674]">Premium Insights</h3>
+                                    </div>
+
+                                    <div className="space-y-4">
+                                        <div className="space-y-2">
+                                            <label className="text-[14px] font-bold text-[#2B3674] flex items-center gap-2">
+                                                <Languages size={14} /> Diaspora Substitutes
+                                            </label>
+                                            <textarea
+                                                rows={2}
+                                                value={formData.diasporaSubstitutes || ''}
+                                                onChange={e => updateField('diasporaSubstitutes', e.target.value)}
+                                                placeholder="Alternatives for ingredients not easily found abroad..."
+                                                className="w-full bg-[#F4F7FE] text-[#2B3674] rounded-[16px] px-[20px] py-[14px] font-medium border border-transparent focus:border-[#4318FF] focus:bg-white focus:outline-none transition-all resize-none"
+                                            />
+                                        </div>
+
+                                        <div className="space-y-2">
+                                            <label className="text-[14px] font-bold text-[#2B3674] flex items-center gap-2">
+                                                <ChefHat size={14} /> Pedagogical Note
+                                            </label>
+                                            <textarea
+                                                rows={2}
+                                                value={formData.pedagogicalNote || ''}
+                                                onChange={e => updateField('pedagogicalNote', e.target.value)}
+                                                placeholder="Cultural context, historical facts or teaching tips..."
+                                                className="w-full bg-[#F4F7FE] text-[#2B3674] rounded-[16px] px-[20px] py-[14px] font-medium border border-transparent focus:border-[#4318FF] focus:bg-white focus:outline-none transition-all resize-none"
+                                            />
+                                        </div>
+
+                                        <div className="space-y-2">
+                                            <label className="text-[14px] font-bold text-[#2B3674] flex items-center gap-2">
+                                                <History size={14} /> Suggested Sides
+                                            </label>
+                                            <input
+                                                type="text"
+                                                value={formData.suggestedSides?.join(', ') || ''}
+                                                onChange={e => updateField('suggestedSides', e.target.value.split(',').map(s => s.trim()))}
+                                                placeholder="Accompagnements (comma separated)..."
+                                                className="w-full bg-[#F4F7FE] text-[#2B3674] rounded-[16px] px-[20px] py-[14px] font-medium border border-transparent focus:border-[#4318FF] focus:bg-white focus:outline-none transition-all"
+                                            />
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>

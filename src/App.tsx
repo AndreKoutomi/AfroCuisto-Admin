@@ -9,7 +9,10 @@ import {
   ChefHat,
   Trash2,
   Bell,
-  Database
+  Database,
+  ShieldCheck,
+  Activity,
+  AlertTriangle
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { supabase } from './supabase';
@@ -62,16 +65,29 @@ export default function App() {
     setIsEditorOpen(true);
   };
 
+  const deleteRecipe = async (id: string) => {
+    if (!confirm('Etes-vous sûr de vouloir supprimer cet asset ?')) return;
+
+    const { error } = await supabase
+      .from('recipes')
+      .delete()
+      .eq('id', id);
+
+    if (!error) {
+      fetchRecipes();
+    }
+  };
+
   return (
     <div className="flex h-screen w-full bg-[#f4f7fe] text-[#2B3674] overflow-hidden">
       {/* Venus Sidebar */}
       <aside className="w-[280px] h-full bg-white flex flex-col pt-10 px-6 shrink-0 z-20 shadow-[4px_0_24px_rgba(112,144,176,0.05)] overflow-y-auto">
-        <div className="flex items-center gap-3 mb-10 pb-6 border-b border-[#E0E5F2]">
-          <div className="text-[#2B3674] font-bold text-2xl tracking-tight flex items-center gap-2 whitespace-nowrap">
-            <div className="w-8 h-8 rounded-lg bg-[#4318FF] flex shrink-0 items-center justify-center">
-              <ChefHat className="text-white" size={20} />
+        <div className="flex items-center mb-10 pb-6 border-b border-[#E0E5F2]">
+          <div className="text-[#2B3674] font-bold text-2xl tracking-tight flex items-center gap-3 whitespace-nowrap">
+            <div className="w-9 h-9 rounded-xl bg-[#4318FF] flex shrink-0 items-center justify-center shadow-lg shadow-[#4318FF]/20">
+              <ChefHat className="text-white" size={22} />
             </div>
-            AFRO<span className="font-extrabold text-[#4318FF]">CUISTO</span>
+            <span>AFRO<span className="font-extrabold text-[#4318FF]">CUISTO</span></span>
           </div>
         </div>
 
@@ -84,12 +100,12 @@ export default function App() {
             <button
               key={item.id}
               onClick={() => setActiveTab(item.id as any)}
-              className={`w-full flex items-center gap-4 px-2 py-3 relative group transition-colors`}
+              className={`w-full flex items-center gap-4 px-6 py-3 relative group transition-colors`}
             >
               <item.icon size={22} className={activeTab === item.id ? 'text-[#4318FF]' : 'text-[#A3AED0] group-hover:text-[#2B3674]'} />
               <span className={`text-[16px] pr-2 tracking-wide text-left flex-1 ${activeTab === item.id ? 'text-[#4318FF] font-bold' : 'text-[#A3AED0] font-medium group-hover:text-[#2B3674]'}`}>{item.label}</span>
               {activeTab === item.id && (
-                <div className="absolute right-[-24px] top-1/2 -translate-y-1/2 w-1 h-9 bg-[#4318FF] rounded-lg" />
+                <div className="absolute right-0 top-1/2 -translate-y-1/2 w-1 h-9 bg-[#4318FF] rounded-lg" />
               )}
             </button>
           ))}
@@ -108,7 +124,7 @@ export default function App() {
             <p className="text-[12px] opacity-80 relative z-10 font-medium leading-tight">Database fully active & synchronized with edge nodes.</p>
           </div>
 
-          <button className="flex items-center gap-4 px-2 py-3 w-full transition-all group">
+          <button className="flex items-center gap-4 px-6 py-3 w-full transition-all group">
             <LogOut size={22} className="text-[#A3AED0] group-hover:text-[#2B3674]" />
             <span className="text-[16px] tracking-wide font-medium text-[#A3AED0] group-hover:text-[#2B3674]">Log out</span>
           </button>
@@ -151,8 +167,8 @@ export default function App() {
           </div>
         </header>
 
-        <main className="flex-1 overflow-x-hidden overflow-y-auto px-8 pb-8 w-full">
-          <div className="max-w-[1500px] mx-auto pt-2">
+        <main className="flex-1 overflow-x-hidden overflow-y-auto px-8 pb-8 w-full no-scrollbar">
+          <div className="w-full pt-2">
             {activeTab === 'recipes' && (
               <div className="mb-8 flex justify-end">
                 <button
@@ -173,7 +189,10 @@ export default function App() {
                   exit={{ opacity: 0, y: -10 }}
                   transition={{ duration: 0.3 }}
                 >
-                  <Dashboard recipes={recipes} />
+                  <Dashboard recipes={recipes} onEditRecipe={(recipe: Recipe) => {
+                    setEditingRecipe(recipe);
+                    setIsEditorOpen(true);
+                  }} />
                 </motion.div>
               )}
 
@@ -205,14 +224,20 @@ export default function App() {
                               src={recipe.image}
                               className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                               alt={recipe.name}
+                              onError={(e) => {
+                                (e.target as HTMLImageElement).onerror = null;
+                                (e.target as HTMLImageElement).src = 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?q=80&w=300&auto=format&fit=crop';
+                              }}
                             />
                           ) : (
                             <div className="w-full h-full bg-[#F4F7FE] flex items-center justify-center">
                               <Plus className="text-[#A3AED0]" size={40} />
                             </div>
                           )}
-                          <div className="absolute top-3 right-3 p-2 bg-white rounded-full shadow-md hover:bg-red-50 text-[#A3AED0] hover:text-[#EE5D50] transition-colors"
-                            onClick={(e) => { e.stopPropagation(); /* handle delete */ }}>
+                          <div
+                            className="absolute top-3 right-3 p-2 bg-white rounded-full shadow-md hover:bg-red-50 text-[#A3AED0] hover:text-[#EE5D50] transition-colors"
+                            onClick={(e) => { e.stopPropagation(); deleteRecipe(recipe.id); }}
+                          >
                             <Trash2 size={16} />
                           </div>
                         </div>
@@ -233,6 +258,75 @@ export default function App() {
                         </div>
                       </motion.div>
                     ))}
+                  </div>
+                </motion.div>
+              )}
+
+              {activeTab === 'settings' && (
+                <motion.div
+                  key="settings"
+                  initial={{ opacity: 0, scale: 0.98 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0, scale: 0.98 }}
+                  className="space-y-6"
+                >
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div className="bg-white rounded-[20px] shadow-[14px_17px_40px_4px_rgba(112,144,176,0.08)] p-8">
+                      <div className="flex items-center gap-4 mb-6">
+                        <div className="w-12 h-12 rounded-2xl bg-[#E9E3FF] text-[#4318FF] flex items-center justify-center">
+                          <ShieldCheck size={24} />
+                        </div>
+                        <div>
+                          <h3 className="text-xl font-bold text-[#2B3674]">System Security</h3>
+                          <p className="text-sm text-[#A3AED0]">Manage access and encryption</p>
+                        </div>
+                      </div>
+                      <div className="space-y-4">
+                        <div className="flex justify-between items-center p-4 bg-[#F4F7FE] rounded-xl">
+                          <div>
+                            <p className="font-bold text-[#2B3674]">SSL Optimization</p>
+                            <p className="text-xs text-[#A3AED0]">Automatic SSL certificate rotation</p>
+                          </div>
+                          <div className="w-12 h-6 bg-[#05CD99] rounded-full relative">
+                            <div className="absolute right-1 top-1 w-4 h-4 bg-white rounded-full" />
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="bg-white rounded-[20px] shadow-[14px_17px_40px_4px_rgba(112,144,176,0.08)] p-8">
+                      <div className="flex items-center gap-4 mb-6">
+                        <div className="w-12 h-12 rounded-2xl bg-[#E6F8F3] text-[#05CD99] flex items-center justify-center">
+                          <Activity size={24} />
+                        </div>
+                        <div>
+                          <h3 className="text-xl font-bold text-[#2B3674]">Node Health</h3>
+                          <p className="text-sm text-[#A3AED0]">Real-time infrastructure status</p>
+                        </div>
+                      </div>
+                      <div className="space-y-4">
+                        <div className="flex justify-between items-center px-2">
+                          <span className="text-sm font-medium text-[#A3AED0]">API Latency</span>
+                          <span className="text-sm font-bold text-[#05CD99]">Healthy</span>
+                        </div>
+                        <div className="h-2 bg-[#F4F7FE] rounded-full overflow-hidden">
+                          <div className="h-full bg-[#05CD99] w-[85%] rounded-full" />
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="bg-[#FFF5F5] border border-[#FFE0E0] rounded-[20px] p-8">
+                    <div className="flex items-center gap-4 mb-4">
+                      <AlertTriangle className="text-[#EE5D50]" />
+                      <h3 className="text-lg font-bold text-[#EE5D50]">Critical Actions</h3>
+                    </div>
+                    <p className="text-sm text-[#EE5D50]/80 mb-6">These actions are permanent and cannot be undone. Please proceed with caution.</p>
+                    <div className="flex gap-4">
+                      <button className="px-6 py-3 bg-[#EE5D50] text-white rounded-xl font-bold text-sm hover:bg-[#EE5D50]/90 transition-all shadow-lg shadow-red-200">
+                        Flush Database Cache
+                      </button>
+                    </div>
                   </div>
                 </motion.div>
               )}
